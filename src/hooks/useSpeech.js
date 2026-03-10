@@ -122,7 +122,10 @@ function setupDeepgram(activeRef, onResult, onError, setIsSupported, cleanupRef)
     if (cleanupRef.current?._processor) {
       cleanupRef.current._processor.disconnect();
       cleanupRef.current._source?.disconnect();
-      cleanupRef.current._audioContext?.close();
+      try { cleanupRef.current._audioContext?.close(); } catch (_) {}
+      cleanupRef.current._audioContext = null;
+      cleanupRef.current._processor = null;
+      cleanupRef.current._source = null;
     }
     if (mediaStream) {
       mediaStream.getTracks().forEach(t => t.stop());

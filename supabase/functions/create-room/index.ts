@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { display_name, category, rounds = 8, timer_seconds = 15, difficulty = 'mixed' } = await req.json();
+    const { display_name, category = 'mixed', rounds = 8, timer_seconds = 15, difficulty = 'mixed' } = await req.json();
     const authHeader = req.headers.get('Authorization');
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -26,7 +26,7 @@ serve(async (req) => {
     let code, exists = true;
     while (exists) {
       code = generateCode();
-      const { data } = await supabase.from('rooms').select('id').eq('code', code).single();
+      const { data } = await supabase.from('rooms').select('id').eq('code', code).maybeSingle();
       exists = !!data;
     }
 
