@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders } from '../_shared/cors.ts';
 
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function generateCode(len = 6) {
@@ -7,6 +8,10 @@ function generateCode(len = 6) {
 }
 
 serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   try {
     const { display_name, category, rounds = 8, timer_seconds = 15, difficulty = 'mixed' } = await req.json();
     const authHeader = req.headers.get('Authorization');
@@ -16,7 +21,7 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader! } } }
     );
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    if (authErr || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
 
     let code, exists = true;
     while (exists) {
@@ -35,9 +40,9 @@ serve(async (req) => {
     });
 
     return new Response(JSON.stringify({ room_id: room.id, code: room.code }), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
   }
 });
