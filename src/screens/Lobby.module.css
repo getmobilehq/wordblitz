@@ -24,6 +24,75 @@
   margin-top: var(--space-1);
 }
 
+/* Mode selection cards */
+.modeCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+  justify-content: center;
+}
+
+.modeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-6);
+  background: var(--color-matte-2);
+  border: 1px solid var(--color-seam);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-snap);
+  color: var(--color-white-95);
+}
+
+.modeCard:hover:not(:disabled) {
+  background: var(--color-matte-3);
+  border-color: var(--color-gold-dark);
+  transform: translateY(-2px);
+}
+
+.modeCard:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.modeCard.modeDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.modeIcon {
+  font-size: 36px;
+}
+
+.modeTitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.modeDesc {
+  font-size: 13px;
+  color: var(--color-white-40);
+}
+
+/* Name section for online */
+.nameSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sectionLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-steel);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* Player cards */
 .players {
   display: flex;
   flex-direction: column;
@@ -74,11 +143,23 @@
   text-align: center;
 }
 
+/* Error message */
+.error {
+  font-size: 13px;
+  color: var(--color-coral);
+  text-align: center;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-coral-dim);
+  border-radius: var(--radius-sm);
+}
+
+/* Actions */
 .actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   padding-bottom: var(--space-4);
+  margin-top: auto;
 }
 
 .divider {
@@ -87,6 +168,8 @@
   gap: var(--space-3);
   color: var(--color-white-30);
   font-size: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
 }
 
 .divider::before, .divider::after {
