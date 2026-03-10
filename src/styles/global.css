@@ -1,0 +1,56 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--color-obsidian);
+  color: var(--color-white-95);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* Scrollbar — dark matte style */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--color-matte-1); }
+::-webkit-scrollbar-thumb { background: var(--color-matte-5); border-radius: 2px; }
+
+/* Input reset */
+input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-white-95);
+  font-family: var(--font-ui);
+}
+input::placeholder { color: var(--color-white-30); }
+
+/* Button reset */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font-ui);
+  color: var(--color-white-95);
+}
+button:disabled { cursor: not-allowed; opacity: 0.4; }
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

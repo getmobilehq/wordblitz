@@ -1,0 +1,99 @@
+.container {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8) var(--space-6);
+  gap: var(--space-6);
+  background: var(--color-obsidian);
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--color-white-40);
+  margin-top: var(--space-1);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-steel);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.pillRow {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--color-matte-2);
+  color: var(--color-white-70);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-snap);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill:hover {
+  background: var(--color-matte-3);
+}
+
+.pill.active {
+  background: var(--color-gold-dark);
+  color: var(--color-gold-pale);
+  border-color: var(--color-gold);
+}
+
+.poolInfo {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-steel-dim);
+  text-align: center;
+}
+
+.actions {
+  margin-top: auto;
+  display: flex;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+}
+
+.actions > *:first-child {
+  flex: 0;
+}
+
+.actions > *:last-child {
+  flex: 1;
+}

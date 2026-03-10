@@ -1,0 +1,64 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-pill);
+  min-height: 48px;
+  min-width: 44px;
+  transition: all 0.2s var(--ease-snap);
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Primary — gold filled */
+.primary {
+  background: var(--color-gold);
+  color: var(--color-void);
+  box-shadow: var(--shadow-glow-gold);
+}
+.primary:hover:not(:disabled) {
+  background: var(--color-gold-pale);
+}
+
+/* Cyan variant */
+.cyan {
+  background: var(--color-cyan);
+  color: var(--color-void);
+  box-shadow: var(--shadow-glow-cyan);
+}
+.cyan:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+
+/* Ghost — outlined */
+.ghost {
+  background: transparent;
+  color: var(--color-white-70);
+  border: 1px solid var(--color-white-15);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--color-matte-3);
+  color: var(--color-white-95);
+}
+
+/* Danger — coral */
+.danger {
+  background: var(--color-coral);
+  color: #fff;
+  box-shadow: var(--shadow-glow-coral);
+}
+.danger:hover:not(:disabled) {
+  filter: brightness(1.1);
+}

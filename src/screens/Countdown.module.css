@@ -1,0 +1,42 @@
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  background: var(--color-void);
+  overflow: hidden;
+}
+
+.bgFlash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.categoryReveal {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--color-white-70);
+  position: absolute;
+  top: 25%;
+  opacity: 0;
+}
+
+.number {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(80px, 25vw, 120px);
+  color: var(--color-white-95);
+  text-shadow: 0 0 40px rgba(255,255,255,0.3);
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.go {
+  color: var(--color-coral);
+  text-shadow: 0 0 60px rgba(255,77,109,0.6);
+}

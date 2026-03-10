@@ -1,0 +1,177 @@
+.container {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-obsidian);
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  gap: var(--space-4);
+}
+
+/* Top bar: scores + round counter */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.roundBadge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-steel);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-matte-2);
+  border-radius: var(--radius-pill);
+  letter-spacing: 1px;
+}
+
+/* Progress strip */
+.progressStrip {
+  display: flex;
+  gap: 3px;
+  height: 4px;
+}
+
+.progressDot {
+  flex: 1;
+  border-radius: 2px;
+  background: var(--color-matte-3);
+  transition: background 0.3s ease;
+}
+
+.progressDot.done {
+  background: var(--color-volt);
+}
+
+.progressDot.current {
+  background: var(--color-gold);
+  box-shadow: 0 0 8px var(--color-gold);
+}
+
+/* Category chip */
+.categoryChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--color-white-40);
+}
+
+/* Main game card */
+.gameCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  background: var(--color-matte-1);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-seam);
+  padding: var(--space-6) var(--space-4);
+  position: relative;
+  overflow: visible;
+}
+
+/* Tiles row */
+.tilesRow {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Timer + voice section */
+.middleSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+/* Transcript display */
+.transcript {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--color-cyan);
+  min-height: 20px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* Manual answer buttons */
+.manualSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.manualLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-steel-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.manualInput {
+  display: flex;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 360px;
+}
+
+.answerInput {
+  flex: 1;
+  background: var(--color-matte-3);
+  border: 1px solid var(--color-seam);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+  min-height: 48px;
+}
+
+.answerInput:focus {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 12px rgba(0,212,255,0.2);
+}
+
+/* Round result overlay */
+.resultOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  background: rgba(4,4,10,0.92);
+  border-radius: var(--radius-card);
+  z-index: 10;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.resultWord {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: 4px;
+}
+
+.resultWinner {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.resultTimeout {
+  color: var(--color-steel);
+  font-style: italic;
+}
