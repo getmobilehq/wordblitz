@@ -23,6 +23,7 @@ export default function Game() {
 
   const [manualAnswer, setManualAnswer] = useState('');
   const [currentPlayerTurn, setCurrentPlayerTurn] = useState(0);
+  const [micActive, setMicActive] = useState(true);
   const answerInputRef = useRef(null);
 
   const totalRounds = room?.rounds || wordQueue.length;
@@ -55,11 +56,12 @@ export default function Game() {
   // Timer hook
   const { timeLeft } = useTimer(handleTimeout);
 
-  // Voice recognition
+  // Voice recognition — feeds spoken words into the answer input
   const handleVoiceResult = useCallback((text, isFinal) => {
     setTranscript(text);
+    const spoken = text.toUpperCase().replace(/[^A-Z]/g, '');
+    if (spoken) setManualAnswer(spoken);
     if (checkAnswer(text, currentWord)) {
-      // In local mode, current player gets the point
       const activePlayer = players[currentPlayerTurn] || players[0];
       handleCorrectAnswer(activePlayer.id);
     }
@@ -67,7 +69,7 @@ export default function Game() {
 
   const { isSupported: voiceSupported } = useSpeech({
     onResult: handleVoiceResult,
-    active: gamePhase === 'listening',
+    active: gamePhase === 'listening' && micActive,
     onError: () => {},
   });
 
@@ -177,29 +179,34 @@ export default function Game() {
           />
         </div>
 
-        {/* Voice transcript */}
-        {voiceSupported && gamePhase === 'listening' && (
-          <div className={styles.transcript}>
-            {transcript || 'Listening...'}
-          </div>
-        )}
-
-        {/* Manual answer */}
+        {/* Answer input — type or speak */}
         {gamePhase === 'listening' && (
           <div className={styles.manualSection}>
             <span className={styles.manualLabel}>
-              {players.length > 1
-                ? `${(players[currentPlayerTurn] || players[0]).name}'s turn to type`
-                : 'Type your answer'}
+              {micActive && voiceSupported
+                ? 'Speak or type your answer'
+                : players.length > 1
+                  ? `${(players[currentPlayerTurn] || players[0]).name}'s turn`
+                  : 'Type your answer'}
             </span>
             <div className={styles.manualInput}>
+              {voiceSupported && (
+                <button
+                  className={`${styles.micBtn} ${micActive ? styles.micActive : ''}`}
+                  onClick={() => setMicActive(v => !v)}
+                  title={micActive ? 'Mute mic' : 'Enable mic'}
+                  type="button"
+                >
+                  {micActive ? '\u{1F3A4}' : '\u{1F507}'}
+                </button>
+              )}
               <input
                 ref={answerInputRef}
                 className={styles.answerInput}
                 value={manualAnswer}
                 onChange={(e) => setManualAnswer(e.target.value.toUpperCase())}
                 onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
-                placeholder="TYPE ANSWER"
+                placeholder={micActive && voiceSupported ? 'LISTENING...' : 'TYPE ANSWER'}
                 maxLength={30}
               />
               <GlowButton variant="cyan" onClick={handleManualSubmit}>
