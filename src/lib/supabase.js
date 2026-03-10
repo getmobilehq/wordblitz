@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
 export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey, {
@@ -13,10 +13,12 @@ export const supabase = supabaseUrl && supabaseAnonKey
 export async function ensureAnonymousAuth() {
   if (!supabase) return null;
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    const { data, error } = await supabase.auth.signInAnonymously();
-    if (error) throw error;
-    return data.user;
+  if (session) return session.user;
+
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error) {
+    console.error('Anonymous auth failed:', error.message);
+    throw new Error(`Auth failed: ${error.message}. Make sure anonymous sign-ins are enabled in Supabase Dashboard > Auth > Settings.`);
   }
-  return session.user;
+  return data.user;
 }
