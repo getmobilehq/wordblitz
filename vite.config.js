@@ -23,7 +23,7 @@ export default defineConfig({
             options: { cacheName: 'word-banks', expiration: { maxEntries: 1, maxAgeSeconds: 60*60*24*30 } }
           }
         ],
-        navigateFallback: '/offline.html',
+        navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/functions/]
       }
     })
