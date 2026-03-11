@@ -20,7 +20,7 @@ serve(async (req) => {
     }
 
     const { data: existingWin } = await supabase.from('game_events')
-      .select('id').eq('room_id', room_id).eq('word_index', room.current_index).eq('answer_correct', true).single();
+      .select('id').eq('room_id', room_id).eq('word_index', room.current_index).eq('answer_correct', true).maybeSingle();
     if (existingWin) return new Response(JSON.stringify({ already_won: true }), { status: 409, headers: corsHeaders });
 
     const correctWord = room.word_queue[room.current_index];
@@ -33,13 +33,13 @@ serve(async (req) => {
       answer_correct: true, response_ms: timestamp_ms
     });
 
-    const { data: player } = await supabase.from('room_players').select('score, display_name').eq('id', player_id).single();
+    const { data: player } = await supabase.from('room_players').select('score, display_name, user_id').eq('id', player_id).single();
     await supabase.from('room_players').update({ score: (player?.score || 0) + 1 }).eq('id', player_id);
 
     await supabase.channel(`room:${room_id}`).send({
       type: 'broadcast', event: 'round:won',
       payload: {
-        winner_id: player_id, winner_name: player?.display_name,
+        winner_id: player?.user_id || player_id, winner_name: player?.display_name,
         correct_word: correctWord, new_score: (player?.score || 0) + 1,
         next_index: room.current_index + 1,
         game_over: room.current_index + 1 >= room.rounds

@@ -71,10 +71,10 @@ export default function Countdown() {
         duration: 0.3,
       })
       .call(() => {
-        // Start first round
-        const seed = Date.now();
+        // Start first round — use deterministic seed for online sync
         const firstWord = wordQueue[0];
         if (firstWord) {
+          const seed = room?.id !== 'local' ? (0 * 7919 + 42) : Date.now();
           setCurrentWord(0, scrambleWord(firstWord, seed));
         }
         setScreen('game');

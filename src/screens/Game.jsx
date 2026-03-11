@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import useGameStore from '../store/gameStore';
+import { supabase } from '../lib/supabase';
+import { useRoom } from '../hooks/useRoom';
 import { useSpeech } from '../hooks/useSpeech';
 import { useTimer } from '../hooks/useTimer';
 import { checkAnswer } from '../lib/normalize';
@@ -16,7 +18,7 @@ import styles from './Game.module.css';
 export default function Game() {
   const store = useGameStore();
   const {
-    room, players, wordQueue, currentIndex, scrambledWord,
+    room, players, myId, wordQueue, currentIndex, scrambledWord,
     gamePhase, roundResult, transcript, setTranscript,
     setRoundResult, updatePlayer, setCurrentWord, setScreen, setGamePhase,
   } = store;
@@ -24,15 +26,57 @@ export default function Game() {
   const [manualAnswer, setManualAnswer] = useState('');
   const [currentPlayerTurn, setCurrentPlayerTurn] = useState(0);
   const [micActive, setMicActive] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const answerInputRef = useRef(null);
 
+  const isOnline = room && room.id !== 'local' && !!supabase;
   const totalRounds = room?.rounds || wordQueue.length;
   const timerTotal = room?.timerSeconds || 15;
   const currentWord = wordQueue[currentIndex] || '';
   const categoryData = room?.category ? WORD_BANKS[room.category] : null;
 
-  // Handle correct answer
-  const handleCorrectAnswer = useCallback((playerId) => {
+  // Subscribe to room channel for real-time sync (online mode)
+  useRoom(isOnline ? room?.id : null);
+
+  // ── Online: submit answer to server ──
+  const submitOnlineAnswer = useCallback(async (answer) => {
+    if (!isOnline || submitting || gamePhase !== 'listening') return;
+    if (!checkAnswer(answer, currentWord)) return;
+
+    setSubmitting(true);
+    try {
+      // Find this player's room_players ID
+      const { data: rp } = await supabase
+        .from('room_players')
+        .select('id')
+        .eq('room_id', room.id)
+        .eq('user_id', myId)
+        .single();
+
+      if (!rp) return;
+
+      const { data, error } = await supabase.functions.invoke('validate-answer', {
+        body: {
+          room_id: room.id,
+          player_id: rp.id,
+          answer,
+          timestamp_ms: Date.now(),
+        },
+      });
+
+      if (error) console.error('validate-answer error:', error);
+
+      // If already won by someone else, the broadcast will handle it
+      // If we won, the broadcast will also handle it for both players
+    } catch (err) {
+      console.error('Submit answer failed:', err);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [isOnline, submitting, gamePhase, currentWord, room?.id, myId]);
+
+  // ── Local: handle correct answer ──
+  const handleLocalCorrectAnswer = useCallback((playerId) => {
     const player = players.find(p => p.id === playerId);
     if (!player) return;
 
@@ -46,12 +90,22 @@ export default function Game() {
 
   // Handle timeout
   const handleTimeout = useCallback(() => {
-    setRoundResult({
-      winnerId: null,
-      winnerName: null,
-      correctWord: currentWord,
-    });
-  }, [currentWord, setRoundResult]);
+    if (isOnline) {
+      // In online mode, timeout should be handled server-side
+      // For now, show timeout locally — server will also broadcast
+      setRoundResult({
+        winnerId: null,
+        winnerName: null,
+        correctWord: currentWord,
+      });
+    } else {
+      setRoundResult({
+        winnerId: null,
+        winnerName: null,
+        correctWord: currentWord,
+      });
+    }
+  }, [currentWord, setRoundResult, isOnline]);
 
   // Timer hook
   const { timeLeft } = useTimer(handleTimeout);
@@ -61,11 +115,16 @@ export default function Game() {
     setTranscript(text);
     const spoken = text.toUpperCase().replace(/[^A-Z]/g, '');
     if (spoken) setManualAnswer(spoken);
+
     if (checkAnswer(text, currentWord)) {
-      const activePlayer = players[currentPlayerTurn] || players[0];
-      handleCorrectAnswer(activePlayer.id);
+      if (isOnline) {
+        submitOnlineAnswer(text);
+      } else {
+        const activePlayer = players[currentPlayerTurn] || players[0];
+        handleLocalCorrectAnswer(activePlayer.id);
+      }
     }
-  }, [currentWord, players, currentPlayerTurn, handleCorrectAnswer, setTranscript]);
+  }, [currentWord, players, currentPlayerTurn, handleLocalCorrectAnswer, setTranscript, isOnline, submitOnlineAnswer]);
 
   const { isSupported: voiceSupported } = useSpeech({
     onResult: handleVoiceResult,
@@ -76,15 +135,18 @@ export default function Game() {
   // Manual answer submit
   const handleManualSubmit = () => {
     if (!manualAnswer.trim()) return;
-    if (checkAnswer(manualAnswer, currentWord)) {
+    if (isOnline) {
+      submitOnlineAnswer(manualAnswer);
+    } else if (checkAnswer(manualAnswer, currentWord)) {
       const activePlayer = players[currentPlayerTurn] || players[0];
-      handleCorrectAnswer(activePlayer.id);
+      handleLocalCorrectAnswer(activePlayer.id);
     }
     setManualAnswer('');
   };
 
-  // Advance to next round after result
+  // ── Local mode only: advance to next round after result ──
   useEffect(() => {
+    if (isOnline) return; // Online mode advances via useRoom broadcast
     if (gamePhase !== 'result') return;
     const timer = setTimeout(() => {
       const nextIndex = currentIndex + 1;
@@ -100,7 +162,12 @@ export default function Game() {
       }
     }, 2500);
     return () => clearTimeout(timer);
-  }, [gamePhase, currentIndex, totalRounds, wordQueue, setCurrentWord, setGamePhase, setScreen]);
+  }, [isOnline, gamePhase, currentIndex, totalRounds, wordQueue, setCurrentWord, setGamePhase, setScreen]);
+
+  // Reset answer input when round changes
+  useEffect(() => {
+    setManualAnswer('');
+  }, [currentIndex]);
 
   // Focus input when listening
   useEffect(() => {
@@ -185,7 +252,7 @@ export default function Game() {
             <span className={styles.manualLabel}>
               {micActive && voiceSupported
                 ? 'Speak or type your answer'
-                : players.length > 1
+                : players.length > 1 && !isOnline
                   ? `${(players[currentPlayerTurn] || players[0]).name}'s turn`
                   : 'Type your answer'}
             </span>
@@ -206,10 +273,11 @@ export default function Game() {
                 value={manualAnswer}
                 onChange={(e) => setManualAnswer(e.target.value.toUpperCase())}
                 onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
-                placeholder={micActive && voiceSupported ? 'LISTENING...' : 'TYPE ANSWER'}
+                placeholder={submitting ? 'CHECKING...' : micActive && voiceSupported ? 'LISTENING...' : 'TYPE ANSWER'}
                 maxLength={30}
+                disabled={submitting}
               />
-              <GlowButton variant="cyan" onClick={handleManualSubmit}>
+              <GlowButton variant="cyan" onClick={handleManualSubmit} disabled={submitting}>
                 GO
               </GlowButton>
             </div>
