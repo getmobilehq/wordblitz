@@ -33,7 +33,10 @@ export default function Splash() {
         </div>
       </div>
 
-      <span className={styles.version}>v1.0.0</span>
+      <span className={styles.version}>
+        v1.0.0
+        <button className={styles.adminLink} onClick={() => setScreen('admin')}>Admin</button>
+      </span>
     </div>
   );
 }

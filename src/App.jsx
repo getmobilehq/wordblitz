@@ -8,6 +8,7 @@ import WaitingRoom from './screens/WaitingRoom';
 import Countdown from './screens/Countdown';
 import Game from './screens/Game';
 import Results from './screens/Results';
+import Admin from './screens/Admin';
 
 const screens = {
   splash: Splash,
@@ -17,6 +18,7 @@ const screens = {
   countdown: Countdown,
   game: Game,
   results: Results,
+  admin: Admin,
 };
 
 export default function App() {
