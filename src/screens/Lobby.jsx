@@ -6,7 +6,7 @@ import GlowButton from '../components/GlowButton';
 import styles from './Lobby.module.css';
 
 export default function Lobby() {
-  const { myId, myName, setMyName, setScreen, setPlayers, setRoom } = useGameStore();
+  const { myId, myName, setMyId, setMyName, setScreen, setPlayers, setRoom } = useGameStore();
   const [name, setName] = useState(myName || '');
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState(null); // null | 'local' | 'online'
@@ -54,7 +54,9 @@ export default function Lobby() {
     setLoading(true);
     setError('');
     try {
-      await ensureAnonymousAuth();
+      const user = await ensureAnonymousAuth();
+      if (user) setMyId(user.id);
+      const odMyId = user?.id || myId;
       setMyName(name.trim());
 
       const { data, error: fnErr } = await supabase.functions.invoke('create-room', {
@@ -64,11 +66,11 @@ export default function Lobby() {
 
       const { room_id, code } = data;
       setRoom({
-        id: room_id, code, status: 'waiting',
+        id: room_id, code, status: 'waiting', hostId: odMyId,
         category: null, rounds: 8, timerSeconds: 15, difficulty: 'mixed',
       });
       setPlayers([{
-        id: myId, name: name.trim(),
+        id: odMyId, name: name.trim(),
         score: 0, streak: 0,
         isReady: true, isConnected: true,
         joinOrder: 1,
@@ -88,7 +90,8 @@ export default function Lobby() {
     setLoading(true);
     setError('');
     try {
-      await ensureAnonymousAuth();
+      const user = await ensureAnonymousAuth();
+      if (user) setMyId(user.id);
       setMyName(name.trim());
 
       const { data, error: fnErr } = await supabase.functions.invoke('join-room', {

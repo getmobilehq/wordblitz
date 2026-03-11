@@ -25,7 +25,9 @@ export default function App() {
   const screen = useGameStore(s => s.screen);
 
   useEffect(() => {
-    ensureAnonymousAuth().catch(() => {});
+    ensureAnonymousAuth().then(user => {
+      if (user) useGameStore.getState().setMyId(user.id);
+    }).catch(() => {});
     // Handle deep link /join?code=XXXXX
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');

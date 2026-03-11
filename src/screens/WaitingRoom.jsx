@@ -14,7 +14,7 @@ export default function WaitingRoom() {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isHost = players[0]?.id === myId;
+  const isHost = room?.hostId === myId || players[0]?.id === myId;
   const inviteUrl = room?.code
     ? `${window.location.origin}?code=${room.code}`
     : '';

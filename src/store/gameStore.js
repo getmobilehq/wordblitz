@@ -10,6 +10,7 @@ const useGameStore = create(immer(persist((set, get) => ({
   // ── Player identity (persisted)
   myId: crypto.randomUUID(),
   myName: '',
+  setMyId: (id) => set(state => { state.myId = id; }),
   setMyName: (name) => set(state => { state.myName = name; }),
 
   // ── Room
