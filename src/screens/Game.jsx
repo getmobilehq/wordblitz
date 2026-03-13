@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import useGameStore from '../store/gameStore';
 import { supabase } from '../lib/supabase';
 import { useRoom } from '../hooks/useRoom';
@@ -143,6 +144,21 @@ export default function Game() {
     }
     setManualAnswer('');
   };
+
+  // ── Confetti burst when someone wins a round ──
+  useEffect(() => {
+    if (gamePhase === 'result' && roundResult?.winnerId) {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.65 },
+        colors: ['#FFD700', '#00D4FF', '#FF4D6D', '#BAFF39'],
+        startVelocity: 30,
+        gravity: 1,
+        ticks: 150,
+      });
+    }
+  }, [gamePhase, roundResult?.winnerId]);
 
   // ── Local mode only: advance to next round after result ──
   useEffect(() => {

@@ -9,7 +9,7 @@ export default function Lobby() {
   const { myId, myName, setMyId, setMyName, setScreen, setPlayers, setRoom } = useGameStore();
   const [name, setName] = useState(myName || '');
   const [joinCode, setJoinCode] = useState('');
-  const [mode, setMode] = useState(null); // null | 'local' | 'online'
+  const [mode, setMode] = useState(null); // null | 'solo' | 'local' | 'online'
   const [localNames, setLocalNames] = useState(['', '']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -45,6 +45,20 @@ export default function Lobby() {
       }))
       .filter(p => p.name.length > 0);
     setPlayers(activePlayers);
+    setScreen('setup');
+  };
+
+  // ── Solo practice ──
+  const handleSoloStart = () => {
+    if (!name.trim()) return;
+    setMyName(name.trim());
+    setPlayers([{
+      id: myId,
+      name: name.trim(),
+      score: 0, streak: 0,
+      isReady: true, isConnected: true,
+      joinOrder: 1,
+    }]);
     setScreen('setup');
   };
 
@@ -139,6 +153,12 @@ export default function Lobby() {
         </div>
 
         <div className={styles.modeCards}>
+          <button className={styles.modeCard} onClick={() => setMode('solo')}>
+            <span className={styles.modeIcon}>{'\u{1F9E0}'}</span>
+            <span className={styles.modeTitle}>Solo Practice</span>
+            <span className={styles.modeDesc}>Train your word skills alone</span>
+          </button>
+
           <button className={styles.modeCard} onClick={() => setMode('local')}>
             <span className={styles.modeIcon}>{'\u{1F4F1}'}</span>
             <span className={styles.modeTitle}>Local Play</span>
@@ -161,6 +181,42 @@ export default function Lobby() {
         <GlowButton variant="ghost" onClick={() => setScreen('splash')}>
           BACK
         </GlowButton>
+      </div>
+    );
+  }
+
+  // ── Solo mode view ──
+  if (mode === 'solo') {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Solo Practice</h1>
+          <p className={styles.subtitle}>Unscramble words against the clock</p>
+        </div>
+
+        <div className={styles.nameSection}>
+          <span className={styles.sectionLabel}>Your Name</span>
+          <div className={styles.playerCard}>
+            <div className={styles.colorDot} style={{ background: PLAYER_COLORS[1].main, boxShadow: PLAYER_COLORS[1].glow }} />
+            <input
+              className={styles.nameInput}
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => { setName(e.target.value); setMyName(e.target.value); }}
+              maxLength={16}
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <div className={styles.actions}>
+          <GlowButton onClick={handleSoloStart} disabled={!name.trim()}>
+            START PRACTICE
+          </GlowButton>
+          <GlowButton variant="ghost" onClick={() => setMode(null)}>
+            BACK
+          </GlowButton>
+        </div>
       </div>
     );
   }
